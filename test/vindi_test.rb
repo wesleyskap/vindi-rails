@@ -107,6 +107,63 @@ class VindiTest < Minitest::Test
     assert_equal 10.5, discount.amount
   end
 
+  def test_bill_crud_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/bills")
+      .to_return(status: 200, body: '{"bill":{"id":555,"amount":100.0}}')
+
+    bill = Vindi::Bill.create(amount: 100.0)
+    assert_equal 555, bill.id
+    assert_equal 100.0, bill.amount
+  end
+
+  def test_bill_item_operations
+    setup_test_config
+
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/bill_items")
+      .to_return(status: 200, body: '{"bill_items":[{"id":444,"amount":50.0}]}')
+
+    items = Vindi::BillItem.list
+    assert_kind_of Array, items
+    assert_equal 444, items.first.id
+    assert_equal 50.0, items.first.amount
+  end
+
+  def test_period_operations
+    setup_test_config
+
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/periods")
+      .to_return(status: 200, body: '{"periods":[{"id":333,"start_at":"2026-06-10"}]}')
+
+    periods = Vindi::Period.list
+    assert_kind_of Array, periods
+    assert_equal 333, periods.first.id
+    assert_equal "2026-06-10", periods.first.start_at
+  end
+
+  def test_transaction_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/transactions")
+      .to_return(status: 200, body: '{"transaction":{"id":222,"amount":100.0}}')
+
+    tx = Vindi::Transaction.create(amount: 100.0)
+    assert_equal 222, tx.id
+    assert_equal 100.0, tx.amount
+  end
+
+  def test_usage_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/usages")
+      .to_return(status: 200, body: '{"usage":{"id":111,"quantity":5}}')
+
+    usage = Vindi::Usage.create(quantity: 5)
+    assert_equal 111, usage.id
+    assert_equal 5, usage.quantity
+  end
+
   private
 
   def setup_test_config

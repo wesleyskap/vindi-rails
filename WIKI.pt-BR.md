@@ -165,3 +165,53 @@ desconto = Vindi::Discount.create(
   percentage: 10
 )
 ```
+
+### Faturas & Itens de Fatura (`Vindi::Bill` & `Vindi::BillItem`)
+
+```ruby
+# Criar uma fatura manualmente
+fatura = Vindi::Bill.create(
+  customer_id: cliente.id,
+  payment_method_code: "credit_card",
+  bill_items: [
+    { product_id: produto.id, amount: 99.90 }
+  ]
+)
+
+# Listar itens de uma fatura
+itens = Vindi::BillItem.list(bill_id: fatura.id)
+```
+
+### Períodos (`Vindi::Period`)
+
+```ruby
+# Listar períodos de uma assinatura
+periodos = Vindi::Period.list(subscription_id: assinatura.id)
+```
+
+### Transações (`Vindi::Transaction`)
+
+```ruby
+# Criar uma transação manual (captura de cobrança)
+transacao = Vindi::Transaction.create(
+  charge_id: cobranca.id,
+  amount: 99.90
+)
+
+# Listar transações
+transacoes = Vindi::Transaction.list
+```
+
+### Consumos/Usos (`Vindi::Usage`)
+
+```ruby
+# Informar consumo de uso de uma assinatura
+uso = Vindi::Usage.create(
+  subscription_id: assinatura.id,
+  quantity: 50,
+  description: "Chamadas de API consumidas"
+)
+
+# Listar consumos informados
+usos = Vindi::Usage.list(subscription_id: assinatura.id)
+```

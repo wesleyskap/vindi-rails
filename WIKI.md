@@ -165,3 +165,53 @@ discount = Vindi::Discount.create(
   percentage: 10
 )
 ```
+
+### Bills & Bill Items (`Vindi::Bill` & `Vindi::BillItem`)
+
+```ruby
+# Create a bill manually
+bill = Vindi::Bill.create(
+  customer_id: customer.id,
+  payment_method_code: "credit_card",
+  bill_items: [
+    { product_id: product.id, amount: 99.90 }
+  ]
+)
+
+# List bill items
+items = Vindi::BillItem.list(bill_id: bill.id)
+```
+
+### Periods (`Vindi::Period`)
+
+```ruby
+# List subscription periods
+periods = Vindi::Period.list(subscription_id: subscription.id)
+```
+
+### Transactions (`Vindi::Transaction`)
+
+```ruby
+# Create a manual transaction/charge capture
+transaction = Vindi::Transaction.create(
+  charge_id: charge.id,
+  amount: 99.90
+)
+
+# List transactions
+transactions = Vindi::Transaction.list
+```
+
+### Usages (`Vindi::Usage`)
+
+```ruby
+# Report a metered usage for a subscription
+usage = Vindi::Usage.create(
+  subscription_id: subscription.id,
+  quantity: 50,
+  description: "API Calls consumed"
+)
+
+# List usages
+usages = Vindi::Usage.list(subscription_id: subscription.id)
+```
