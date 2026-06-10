@@ -5,16 +5,14 @@ require_relative "lib/vindi/version"
 Gem::Specification.new do |spec|
   spec.name = "vindi-rails"
   spec.version = Vindi::VERSION
-  spec.authors = ["Your Name"]
-  spec.email = ["your-email@example.com"]
+  spec.authors = ["Wesley Lima"]
+  spec.email = ["wesleyskap@gmail.com"]
 
-  spec.summary = "SDK Ruby/Rails para integração com a plataforma de cobranças recorrentes Vindi"
-  spec.description = "Permite interagir com a API da Vindi de forma elegante e integrada com Ruby/Rails."
-  spec.homepage = "https://github.com/your-username/vindi-rails"
+  spec.summary = "Ruby/Rails integration SDK for the Vindi API v1 (recurring billing platform)."
+  spec.description = "Allows interaction with the Vindi API in an elegant and integrated way with Ruby/Rails."
+  spec.homepage = "https://github.com/wesleyskap/vindi-rails"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
-
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://rubygems.org'"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    vindi-rails (0.1.0)
+    vindi-rails (0.2.0)
       rest-client (~> 2.1)
 
 GEM
