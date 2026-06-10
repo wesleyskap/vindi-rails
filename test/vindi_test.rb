@@ -63,6 +63,50 @@ class VindiTest < Minitest::Test
     assert_equal "archived", customer.status
   end
 
+  def test_plan_crud_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(status: 200, body: '{"plan":{"id":999,"name":"Gold Plan"}}')
+
+    plan = Vindi::Plan.create(name: "Gold Plan")
+    assert_equal "Gold Plan", plan.name
+    assert_equal 999, plan.id
+  end
+
+  def test_product_crud_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/products")
+      .to_return(status: 200, body: '{"product":{"id":888,"name":"Course"}}')
+
+    product = Vindi::Product.create(name: "Course")
+    assert_equal "Course", product.name
+    assert_equal 888, product.id
+  end
+
+  def test_product_item_crud_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/product_items")
+      .to_return(status: 200, body: '{"product_item":{"id":777,"product_id":888}}')
+
+    item = Vindi::ProductItem.create(product_id: 888)
+    assert_equal 777, item.id
+    assert_equal 888, item.product_id
+  end
+
+  def test_discount_crud_operations
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/discounts")
+      .to_return(status: 200, body: '{"discount":{"id":666,"amount":10.5}}')
+
+    discount = Vindi::Discount.create(amount: 10.5)
+    assert_equal 666, discount.id
+    assert_equal 10.5, discount.amount
+  end
+
   private
 
   def setup_test_config
