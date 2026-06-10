@@ -123,3 +123,45 @@ cobrancas = Vindi::Charge.list(status: "pending")
 # Obter valor da primeira cobrança
 puts cobrancas.first.amount
 ```
+
+### Planos (`Vindi::Plan`)
+
+```ruby
+# Criar um plano
+plano = Vindi::Plan.create(
+  name: "Plano Ouro Premium",
+  code: "gold_premium",
+  interval: "months",
+  interval_count: 1
+)
+
+# Listar planos
+planos = Vindi::Plan.list
+```
+
+### Produtos & Itens de Produto (`Vindi::Product` & `Vindi::ProductItem`)
+
+```ruby
+# Criar um produto
+produto = Vindi::Product.create(
+  name: "Serviço de Hospedagem",
+  code: "hosting"
+)
+
+# Associar um produto a um plano/assinatura
+item_produto = Vindi::ProductItem.create(
+  product_id: produto.id,
+  plan_id: plano.id
+)
+```
+
+### Descontos (`Vindi::Discount`)
+
+```ruby
+# Criar/aplicar um desconto
+desconto = Vindi::Discount.create(
+  amount: 15.00,
+  discount_type: "percentage",
+  percentage: 10
+)
+```

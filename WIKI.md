@@ -123,3 +123,45 @@ charges = Vindi::Charge.list(status: "pending")
 # Charge details
 puts charges.first.amount
 ```
+
+### Plans (`Vindi::Plan`)
+
+```ruby
+# Create a plan
+plan = Vindi::Plan.create(
+  name: "Premium Gold Plan",
+  code: "gold_premium",
+  interval: "months",
+  interval_count: 1
+)
+
+# List plans
+plans = Vindi::Plan.list
+```
+
+### Products & Product Items (`Vindi::Product` & `Vindi::ProductItem`)
+
+```ruby
+# Create a product
+product = Vindi::Product.create(
+  name: "Hosting Service",
+  code: "hosting"
+)
+
+# Associate a product to a plan/subscription
+product_item = Vindi::ProductItem.create(
+  product_id: product.id,
+  plan_id: plan.id
+)
+```
+
+### Discounts (`Vindi::Discount`)
+
+```ruby
+# Create/apply a discount
+discount = Vindi::Discount.create(
+  amount: 15.00,
+  discount_type: "percentage",
+  percentage: 10
+)
+```
