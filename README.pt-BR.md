@@ -9,7 +9,7 @@ SDK de integração Ruby/Rails para a API v1 da Vindi (plataforma de cobranças 
 Adicione esta linha ao Gemfile da sua aplicação:
 
 ```ruby
-gem 'vindi-rails', path: 'c:/Users/User/develop/estudo/vindi-rails'
+gem 'vindi-rails'
 ```
 
 E então execute:
@@ -59,6 +59,21 @@ Vindi::Customer.update(cliente.id, name: 'João Silva Alterado')
 # Excluir cliente
 Vindi::Customer.delete(cliente.id)
 ```
+
+## Integrações & Engines Rails Extensíveis
+
+Para manter o SDK base leve e sem dependências rígidas de frameworks, as integrações específicas para o Rails foram separadas em Gems extensíveis:
+
+### 1. Integrações de Backend ([`vindi-rails-integrations`](https://github.com/wesleyskap/vindi-rails-integrations))
+Lida com webhooks, jobs em segundo plano e sincronização do ActiveRecord:
+- **`rails generate vindi:webhook`**: Cria um controller de webhooks e um job de processamento assíncrono seguro com filtros de validação de token e controle de idempotência.
+- **`rails generate vindi:sync [Model]`**: Cria migrações e adiciona sincronização automática por meio de callbacks do ActiveRecord (ex: sincronizar modelo `User` com a base de clientes Vindi).
+
+### 2. Componentes Front-End ([`vindi-rails-engines`](https://github.com/wesleyskap/vindi-rails-engines))
+Uma Rails Engine contendo Views e componentes prontos de criptografia e captura de cartão de crédito no navegador:
+- **`rails generate vindi:checkout`**: Copia templates de formulário HTML/ERB e Stimulus JS integrando a criptografia de chave pública da Vindi.
+
+Para guias e detalhes de integração, consulte a [WIKI.pt-BR.md](./WIKI.pt-BR.md).
 
 ## Rodando os Testes com Docker Compose
 

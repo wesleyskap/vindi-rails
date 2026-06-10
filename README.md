@@ -9,7 +9,7 @@ Ruby/Rails integration SDK for the Vindi API v1 (recurring billing platform).
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'vindi-rails', path: 'c:/Users/User/develop/estudo/vindi-rails'
+gem 'vindi-rails'
 ```
 
 And then execute:
@@ -59,6 +59,21 @@ Vindi::Customer.update(customer.id, name: 'John Doe Updated')
 # Delete a customer
 Vindi::Customer.delete(customer.id)
 ```
+
+## Extensible Rails Integrations & Engines
+
+To keep the SDK lightweight and free of framework dependencies, Rails-specific features are organized into extensible companion gems:
+
+### 1. Backend Integrations ([`vindi-rails-integrations`](https://github.com/wesleyskap/vindi-rails-integrations))
+Handles webhook processing, background jobs, and ActiveRecord synchronization:
+- **`rails generate vindi:webhook`**: Creates a webhooks controller and background queue job stub to process payment/subscription events safely with built-in security filters and idempotency checks.
+- **`rails generate vindi:sync [Model]`**: Adds `vindi_customer_id` and database migrations to synchronize your models (e.g. `User`) automatically with Vindi via ActiveRecord callbacks.
+
+### 2. Frontend Engines ([`vindi-rails-engines`](https://github.com/wesleyskap/vindi-rails-engines))
+A mountable Rails Engine carrying pre-built Views, HTML templates, and card tokenization scripts:
+- **`rails generate vindi:checkout`**: Copies ready-to-use checkout UI templates and Stimulus JS components using Vindi's public keys encryption.
+
+For detailed integration guides, please refer to [WIKI.md](./WIKI.md).
 
 ## Running Tests with Docker Compose
 
