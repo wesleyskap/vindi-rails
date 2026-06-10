@@ -1,0 +1,125 @@
+# Wiki do SDK Vindi
+
+[Read in English (WIKI.md)](./WIKI.md)
+
+Bem-vindo à Wiki do SDK `vindi-rails`. Este documento detalha todos os recursos mapeados, operações suportadas e guias de uso.
+
+---
+
+## 1. Design & Arquitetura do SDK
+
+O SDK utiliza o `RestClient` internamente para se comunicar com a API da Vindi.
+Os recursos são representados como objetos Ruby que herdam de `Vindi::Resource`. Os atributos retornados pela API são acessíveis através de métodos getter dinâmicos nas instâncias.
+
+### Tratamento de Erros
+
+O SDK lança exceções específicas de acordo com os códigos de status HTTP retornados. Todos os erros herdam de `Vindi::Error`:
+
+- `Vindi::UnauthorizedError` (401)
+- `Vindi::ForbiddenError` (403)
+- `Vindi::NotFoundError` (404)
+- `Vindi::UnprocessableEntityError` (422)
+- `Vindi::RateLimitError` (429)
+- `Vindi::InternalServerError` (500+)
+- `Vindi::APIError` (Tratamento genérico para outros códigos HTTP)
+
+---
+
+## 2. Mapeamento de Recursos e Operações CRUD
+
+A tabela abaixo lista todos os recursos mapeados e suas operações disponíveis:
+
+| Classe do Recurso | Endpoint | Operações CRUD Habilitadas |
+| :--- | :--- | :--- |
+| `Vindi::Customer` | `customers` | `list`, `create`, `update`, `delete` |
+| `Vindi::PaymentProfile` | `payment_profiles` | `list`, `create`, `delete` |
+| `Vindi::Subscription` | `subscriptions` | `list`, `create`, `update`, `delete` |
+| `Vindi::Charge` | `charges` | `list`, `create`, `update` |
+| `Vindi::Plan` | `plans` | `list`, `create`, `update`, `delete` |
+| `Vindi::Product` | `products` | `list`, `create`, `update`, `delete` |
+| `Vindi::ProductItem` | `product_items` | `list`, `create`, `update`, `delete` |
+| `Vindi::Discount` | `discounts` | `list`, `create`, `delete` |
+| `Vindi::Bill` | `bills` | `list`, `create`, `update`, `delete` |
+| `Vindi::BillItem` | `bill_items` | `list` |
+| `Vindi::Period` | `periods` | `list` |
+| `Vindi::Transaction` | `transactions` | `list`, `create` |
+| `Vindi::Usage` | `usages` | `list`, `create`, `delete` |
+| `Vindi::Invoice` | `invoices` | `list` |
+| `Vindi::Movement` | `movements` | `list` |
+| `Vindi::Message` | `messages` | `list` |
+| `Vindi::ExportBatch` | `export_batches` | `list`, `create` |
+| `Vindi::ImportBatch` | `import_batches` | `list`, `create` |
+| `Vindi::Issue` | `issues` | `list`, `update` |
+| `Vindi::Notification` | `notifications` | `list` |
+| `Vindi::Merchant` | `merchants` | `list` |
+| `Vindi::MerchantUser` | `merchant_users` | `list` |
+| `Vindi::Role` | `roles` | `list` |
+| `Vindi::User` | `users` | `list` |
+| `Vindi::Public` | `public` | Nenhuma (Configuração Estática) |
+| `Vindi::Affiliate` | `affiliates` | `list` |
+| `Vindi::Partner` | `partner` | `list` |
+
+---
+
+## 3. Exemplos de Uso
+
+### Clientes (`Vindi::Customer`)
+
+```ruby
+# Criar um cliente
+cliente = Vindi::Customer.create(
+  name: "João Silva",
+  email: "joao@exemplo.com"
+)
+
+# Acessar atributos do retorno
+puts cliente.id
+puts cliente.name
+
+# Atualizar cliente
+atualizado = Vindi::Customer.update(cliente.id, email: "joao.novo@exemplo.com")
+
+# Excluir cliente
+Vindi::Customer.delete(cliente.id)
+```
+
+### Perfis de Pagamento (`Vindi::PaymentProfile`)
+
+```ruby
+# Criar perfil de pagamento com cartão
+perfil = Vindi::PaymentProfile.create(
+  customer_id: 12345,
+  payment_company_code: "visa",
+  holder_name: "JOAO SILVA",
+  card_number: "4111111111111111",
+  card_expiration_date: "12/2030",
+  card_cvv: "123"
+)
+
+# Excluir perfil de pagamento
+Vindi::PaymentProfile.delete(perfil.id)
+```
+
+### Assinaturas (`Vindi::Subscription`)
+
+```ruby
+# Criar assinatura
+assinatura = Vindi::Subscription.create(
+  customer_id: cliente.id,
+  plan_id: plano.id,
+  payment_method_code: "credit_card"
+)
+
+# Cancelar/Excluir assinatura
+Vindi::Subscription.delete(assinatura.id)
+```
+
+### Cobranças (`Vindi::Charge`)
+
+```ruby
+# Listar cobranças pendentes
+cobrancas = Vindi::Charge.list(status: "pending")
+
+# Obter valor da primeira cobrança
+puts cobrancas.first.amount
+```
