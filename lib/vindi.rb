@@ -12,6 +12,7 @@ require_relative "vindi/api_operations/delete"
 require_relative "vindi/api_operations/list"
 require_relative "vindi/api_operations/update"
 require_relative "vindi/resource"
+require_relative "vindi/railtie" if defined?(Rails)
 
 # Load all resources
 require_relative "vindi/resources/customer"

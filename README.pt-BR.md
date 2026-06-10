@@ -20,7 +20,13 @@ $ bundle install
 
 ## Configuração
 
-Configure o SDK através de um inicializador no Rails ou antes de utilizá-lo:
+Configure o SDK. Em aplicações Rails, você pode rodar o gerador de instalação para criar o template de inicializador:
+
+```bash
+$ rails generate vindi:install
+```
+
+Isso criará o arquivo `config/initializers/vindi.rb` onde você poderá configurar suas chaves:
 
 ```ruby
 Vindi.configure do |config|

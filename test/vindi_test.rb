@@ -264,6 +264,17 @@ class VindiTest < Minitest::Test
     assert_equal 1013, part.first.id
   end
 
+  def test_generator_loading
+    begin
+      require "rails/generators"
+    rescue LoadError
+      skip "Rails generators not available"
+    end
+
+    require_relative "../lib/generators/vindi/install_generator"
+    assert defined?(Vindi::Generators::InstallGenerator)
+  end
+
   private
 
   def setup_test_config
