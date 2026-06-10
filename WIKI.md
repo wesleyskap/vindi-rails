@@ -215,3 +215,32 @@ usage = Vindi::Usage.create(
 # List usages
 usages = Vindi::Usage.list(subscription_id: subscription.id)
 ```
+
+### Invoices (`Vindi::Invoice`)
+
+```ruby
+# List invoices
+invoices = Vindi::Invoice.list(status: "issued")
+```
+
+### Issues (`Vindi::Issue`)
+
+```ruby
+# Update an issue status (e.g. resolve a billing conflict)
+issue = Vindi::Issue.update(issue_id, status: "resolved")
+```
+
+### Import/Export Batches (`Vindi::ImportBatch` & `Vindi::ExportBatch`)
+
+```ruby
+# Start a new customer/subscription import batch
+import_batch = Vindi::ImportBatch.create(
+  batch_type: "customer",
+  file_url: "https://example.com/import.csv"
+)
+
+# Request a data export batch
+export_batch = Vindi::ExportBatch.create(
+  batch_type: "bill"
+)
+```

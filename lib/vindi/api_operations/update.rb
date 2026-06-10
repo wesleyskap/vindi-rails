@@ -5,7 +5,7 @@ module Vindi
     module Update
       def update(id, params = {})
         response = Client.request(:put, "#{endpoint}/#{id}", params)
-        singular_key = endpoint.chomp("s").to_sym
+        singular_key = endpoint.end_with?("batches") ? endpoint.sub(/es$/, "").to_sym : endpoint.chomp("s").to_sym
         resource_attrs = response.key?(singular_key) ? response[singular_key] : response
         new(resource_attrs)
       end

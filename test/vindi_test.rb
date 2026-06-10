@@ -164,6 +164,106 @@ class VindiTest < Minitest::Test
     assert_equal 5, usage.quantity
   end
 
+  def test_invoice_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/invoices")
+      .to_return(status: 200, body: '{"invoices":[{"id":1001,"status":"issued"}]}')
+
+    res = Vindi::Invoice.list
+    assert_equal 1001, res.first.id
+  end
+
+  def test_movement_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/movements")
+      .to_return(status: 200, body: '{"movements":[{"id":1002,"amount":150.0}]}')
+
+    res = Vindi::Movement.list
+    assert_equal 1002, res.first.id
+  end
+
+  def test_message_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/messages")
+      .to_return(status: 200, body: '{"messages":[{"id":1003,"subject":"Welcome"}]}')
+
+    res = Vindi::Message.list
+    assert_equal 1003, res.first.id
+  end
+
+  def test_batch_operations
+    setup_test_config
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/export_batches")
+      .to_return(status: 200, body: '{"export_batch":{"id":1004}}')
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/import_batches")
+      .to_return(status: 200, body: '{"import_batch":{"id":1005}}')
+
+    eb = Vindi::ExportBatch.create
+    ib = Vindi::ImportBatch.create
+    assert_equal 1004, eb.id
+    assert_equal 1005, ib.id
+  end
+
+  def test_issue_operations
+    setup_test_config
+    stub_request(:put, "https://sandbox-gp.vindi.com.br/api/v1/issues/1006")
+      .to_return(status: 200, body: '{"issue":{"id":1006,"status":"resolved"}}')
+
+    issue = Vindi::Issue.update(1006, status: "resolved")
+    assert_equal "resolved", issue.status
+  end
+
+  def test_notification_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/notifications")
+      .to_return(status: 200, body: '{"notifications":[{"id":1007}]}')
+
+    res = Vindi::Notification.list
+    assert_equal 1007, res.first.id
+  end
+
+  def test_merchant_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/merchants")
+      .to_return(status: 200, body: '{"merchants":[{"id":1008}]}')
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/merchant_users")
+      .to_return(status: 200, body: '{"merchant_users":[{"id":1009}]}')
+
+    m = Vindi::Merchant.list
+    mu = Vindi::MerchantUser.list
+    assert_equal 1008, m.first.id
+    assert_equal 1009, mu.first.id
+  end
+
+  def test_user_and_role_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/roles")
+      .to_return(status: 200, body: '{"roles":[{"id":1010,"name":"admin"}]}')
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/users")
+      .to_return(status: 200, body: '{"users":[{"id":1011,"email":"user@test.com"}]}')
+
+    roles = Vindi::Role.list
+    users = Vindi::User.list
+    assert_equal 1010, roles.first.id
+    assert_equal 1011, users.first.id
+  end
+
+  def test_public_and_partner_and_affiliate_operations
+    setup_test_config
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/affiliates")
+      .to_return(status: 200, body: '{"affiliates":[{"id":1012}]}')
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/partner")
+      .to_return(status: 200, body: '{"partner":[{"id":1013}]}')
+
+    pub = Vindi::Public.new(id: 1014)
+    aff = Vindi::Affiliate.list
+    part = Vindi::Partner.list
+
+    assert_equal 1014, pub.id
+    assert_equal 1012, aff.first.id
+    assert_equal 1013, part.first.id
+  end
+
   private
 
   def setup_test_config

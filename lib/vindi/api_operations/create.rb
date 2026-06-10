@@ -5,7 +5,7 @@ module Vindi
     module Create
       def create(params = {})
         response = Client.request(:post, endpoint, params)
-        singular_key = endpoint.chomp("s").to_sym
+        singular_key = endpoint.end_with?("batches") ? endpoint.sub(/es$/, "").to_sym : endpoint.chomp("s").to_sym
         resource_attrs = response.key?(singular_key) ? response[singular_key] : response
         new(resource_attrs)
       end

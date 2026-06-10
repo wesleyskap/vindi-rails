@@ -215,3 +215,32 @@ uso = Vindi::Usage.create(
 # Listar consumos informados
 usos = Vindi::Usage.list(subscription_id: assinatura.id)
 ```
+
+### Notas Fiscais (`Vindi::Invoice`)
+
+```ruby
+# Listar notas fiscais emitidas
+notas_fiscais = Vindi::Invoice.list(status: "issued")
+```
+
+### Problemas/Pendências (`Vindi::Issue`)
+
+```ruby
+# Atualizar status de uma pendência (ex: marcar como resolvida)
+pendencia = Vindi::Issue.update(issue_id, status: "resolved")
+```
+
+### Lotes de Importação/Exportação (`Vindi::ImportBatch` & `Vindi::ExportBatch`)
+
+```ruby
+# Iniciar lote para importação de clientes/assinaturas
+lote_importacao = Vindi::ImportBatch.create(
+  batch_type: "customer",
+  file_url: "https://exemplo.com/importacao.csv"
+)
+
+# Solicitar lote de exportação de dados
+lote_exportacao = Vindi::ExportBatch.create(
+  batch_type: "bill"
+)
+```
