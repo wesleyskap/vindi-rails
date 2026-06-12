@@ -67,7 +67,9 @@ To keep the SDK lightweight and free of framework dependencies, Rails-specific f
 ### 1. Backend Integrations ([`vindi-rails-integrations`](https://github.com/wesleyskap/vindi-rails-integrations))
 Handles webhook processing, background jobs, and ActiveRecord synchronization:
 - **`rails generate vindi:webhook`**: Creates a webhooks controller and background queue job stub to process payment/subscription events safely with built-in security filters and idempotency checks.
+- **`rails generate vindi:webhook_handler [EventName]`**: Generates a modular event-specific service handler class (e.g. for `subscription_canceled`), which is automatically dispatched by the main `WebhookJob`.
 - **`rails generate vindi:sync [Model]`**: Adds `vindi_customer_id` and database migrations to synchronize your models (e.g. `User`) automatically with Vindi via ActiveRecord callbacks.
+- **`rails vindi:status`**: A diagnostics Rake task to safely check configured Vindi API credentials, active environments, and verify connectivity.
 
 ### 2. Frontend Engines ([`vindi-rails-engines`](https://github.com/wesleyskap/vindi-rails-engines))
 A mountable Rails Engine carrying pre-built Views, HTML templates, and card tokenization scripts:
