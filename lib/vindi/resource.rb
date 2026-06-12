@@ -27,5 +27,10 @@ module Vindi
     def self.endpoint
       raise NotImplementedError, "Subclasses must implement .endpoint"
     end
+
+    def self.find(id)
+      response = Client.request(:get, "#{endpoint}/#{id}")
+      new(response)
+    end
   end
 end

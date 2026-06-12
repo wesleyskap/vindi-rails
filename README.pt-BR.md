@@ -66,8 +66,10 @@ Para manter o SDK base leve e sem dependências rígidas de frameworks, as integ
 
 ### 1. Integrações de Backend ([`vindi-rails-integrations`](https://github.com/wesleyskap/vindi-rails-integrations))
 Lida com webhooks, jobs em segundo plano e sincronização do ActiveRecord:
-- **`rails generate vindi:webhook`**: Cria um controller de webhooks e um job de processamento assíncrono seguro com filtros de validação de token e controle de idempotência.
-- **`rails generate vindi:sync [Model]`**: Cria migrações e adiciona sincronização automática por meio de callbacks do ActiveRecord (ex: sincronizar modelo `User` com a base de clientes Vindi).
+- **`rails generate vindi:webhook`**: Cria a infraestrutura para recebimento de webhooks com validação de assinaturas e tratamento em background.
+- **`rails generate vindi:webhook_handler [NomeDoEvento]`**: Cria uma classe de serviço modular especializada para processar um evento específico (ex: `subscription_canceled`), que é automaticamente despachada pelo `WebhookJob` principal.
+- **`rails generate vindi:sync [Model]`**: Cria migrações e concerns no modelo (ex: `User`) para sincronização automática com a Vindi.
+- **`rails vindi:status`**: Rake task de diagnóstico para checar com segurança credenciais da API Vindi, ambiente ativo e validar conectividade.
 
 ### 2. Componentes Front-End ([`vindi-rails-engines`](https://github.com/wesleyskap/vindi-rails-engines))
 Uma Rails Engine contendo Views e componentes prontos de criptografia e captura de cartão de crédito no navegador:

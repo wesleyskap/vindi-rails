@@ -275,6 +275,13 @@ Validates incoming Vindi HTTP POST notifications by checking a secure token insi
 ##### 2. Asynchronous Webhook Job (`app/jobs/vindi/webhook_job.rb`)
 Handles processing events in the background. It includes built-in safeguards like idempotency checking.
 
+##### 3. Modular Webhook Handlers
+For cleaner architectures, separate processing of each event type into dedicated service files:
+```bash
+bundle exec rails generate vindi:webhook_handler subscription_canceled
+```
+This generates `app/services/vindi/webhooks/base_handler.rb` (base class) and `app/services/vindi/webhooks/subscription_canceled_handler.rb`. The generated `WebhookJob` will automatically discover and dispatch to these modular classes dynamically.
+
 ###### Example Vindi Webhook Payload (Event)
 ```json
 {
@@ -359,6 +366,23 @@ Sending POST to http://localhost:3000/vindi/webhooks?token=YOUR_SECURE_TOKEN...
 Payload: {"event":{"id":9999,"type":"bill_paid","data":{...}}}
 Response Code: 200 OK
 Response Body: {"status":"received"}
+```
+
+##### 3. Diagnostics and Connectivity Check (`vindi:status`)
+Verify your configured API environments, credentials safely (masked), and run connectivity health checks:
+```bash
+bundle exec rake vindi:status
+```
+**Example Status Report:**
+```text
+=== Vindi Integration Status ===
+Environment: Sandbox
+API URL:     https://sandbox-gp.vindi.com.br/api/v1
+API Key:     *****2345
+Webhook:     *****_999
+--------------------------------
+Connectivity: SUCCESS
+================================
 ```
 
 ---
