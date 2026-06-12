@@ -4,6 +4,11 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ---
 
+## [0.2.1] - 12-06-2026
+
+### Alterado
+- **Documentação**: Atualizados o README e WIKI (tanto EN quanto PT-BR) para documentar os novos recursos de handlers de webhook modulares fornecidos pela gem complementar `vindi-rails-integrations`.
+
 ## [0.2.0] - 10-06-2026
 
 ### Adicionado
