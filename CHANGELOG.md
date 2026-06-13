@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.3.0] - 2026-06-13
+
+### Added
+- **Idempotency Key Support**: Support for `Idempotency-Key` headers on POST/PUT actions via optional `opts` parameter in `.create` and `.update` operations.
+- **Docker Caching Improvement**: Copy `Gemfile.lock` during the dependencies caching build step inside `Dockerfile` to prevent runtime version mismatch issues.
+
 ## [0.2.1] - 2026-06-12
 
 ### Changed

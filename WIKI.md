@@ -72,6 +72,12 @@ customer = Vindi::Customer.create(
   email: "john@example.com"
 )
 
+# Create a customer with an idempotency key (prevents duplicates)
+customer = Vindi::Customer.create(
+  { name: "John Doe", email: "john@example.com" },
+  idempotency_key: "unique-uuid-or-key"
+)
+
 # Fetch attribute
 puts customer.id
 puts customer.name

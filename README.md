@@ -53,6 +53,12 @@ customer = Vindi::Customer.create(
   registry_code: '12345678909' # CPF/CNPJ
 )
 
+# Create a customer with an idempotency key (prevents duplicates)
+customer = Vindi::Customer.create(
+  { name: 'John Doe', email: 'john.doe@example.com' },
+  idempotency_key: 'unique-uuid-or-key'
+)
+
 # Update a customer
 Vindi::Customer.update(customer.id, name: 'John Doe Updated')
 
@@ -78,13 +84,11 @@ A mountable Rails Engine carrying pre-built Views, HTML templates, and card toke
 
 For detailed integration guides, please refer to [WIKI.md](./WIKI.md).
 
-## Running Tests with Docker Compose
+## Running Tests
 
-To build and run the Minitest test suite inside Docker:
-
+To run the Minitest suite:
 ```bash
-docker compose build
-docker compose run --rm test
+bundle exec rake test
 ```
 
 ## Detailed Documentation

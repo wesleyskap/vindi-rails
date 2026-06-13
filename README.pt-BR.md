@@ -53,6 +53,12 @@ cliente = Vindi::Customer.create(
   registry_code: '12345678909' # CPF/CNPJ
 )
 
+# Criar um cliente com chave de idempotência (evita duplicados)
+cliente = Vindi::Customer.create(
+  { name: 'João Silva', email: 'joao.silva@exemplo.com' },
+  idempotency_key: 'chave-unica-aqui'
+)
+
 # Atualizar cliente
 Vindi::Customer.update(cliente.id, name: 'João Silva Alterado')
 
@@ -83,8 +89,7 @@ Para guias e detalhes de integração, consulte a [WIKI.pt-BR.md](./WIKI.pt-BR.m
 Para construir e executar a suíte de testes Minitest dentro do Docker:
 
 ```bash
-docker compose build
-docker compose run --rm test
+bundle exec rake test
 ```
 
 ## Documentação Detalhada

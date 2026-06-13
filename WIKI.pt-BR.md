@@ -72,6 +72,12 @@ cliente = Vindi::Customer.create(
   email: "joao@exemplo.com"
 )
 
+# Criar um cliente com uma chave de idempotência (evita duplicados)
+cliente = Vindi::Customer.create(
+  { name: "João Silva", email: "joao@exemplo.com" },
+  idempotency_key: "chave-unica-aqui"
+)
+
 # Acessar atributos do retorno
 puts cliente.id
 puts cliente.name

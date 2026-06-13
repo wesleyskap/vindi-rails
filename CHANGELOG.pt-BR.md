@@ -4,6 +4,12 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ---
 
+## [0.3.0] - 13-06-2026
+
+### Adicionado
+- **Suporte a Chave de Idempotência**: Suporte ao cabeçalho `Idempotency-Key` em ações de POST/PUT através de parâmetro opcional `opts` nas operações `.create` e `.update`.
+- **Melhoria no Cache do Docker**: Cópia do `Gemfile.lock` durante o passo de caching das dependências no `Dockerfile` para prevenir erros de incompatibilidade de versão de gemas em runtime.
+
 ## [0.2.1] - 12-06-2026
 
 ### Alterado
