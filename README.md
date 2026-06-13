@@ -69,6 +69,7 @@ Handles webhook processing, background jobs, and ActiveRecord synchronization:
 - **`rails generate vindi:webhook`**: Creates a webhooks controller and background queue job stub to process payment/subscription events safely with built-in security filters and idempotency checks.
 - **`rails generate vindi:webhook_handler [EventName]`**: Generates a modular event-specific service handler class (e.g. for `subscription_canceled`), which is automatically dispatched by the main `WebhookJob`.
 - **`rails generate vindi:sync [Model]`**: Adds `vindi_customer_id` and database migrations to synchronize your models (e.g. `User`) automatically with Vindi via ActiveRecord callbacks.
+- **`rails generate vindi:outbox`**: Generates a database migration for the transactional outbox table to enable resilient, asynchronous synchronization of ActiveRecord models (avoiding inline external API requests).
 - **`rails vindi:status`**: A diagnostics Rake task to safely check configured Vindi API credentials, active environments, and verify connectivity.
 
 ### 2. Frontend Engines ([`vindi-rails-engines`](https://github.com/wesleyskap/vindi-rails-engines))

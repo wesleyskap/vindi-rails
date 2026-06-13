@@ -338,6 +338,22 @@ When a user record is committed on create or update, it triggers:
 - **On Create**: Calls `Vindi::Customer.create` and populates `vindi_customer_id` automatically in your database.
 - **On Update**: Automatically checks if `name` or `email` changed, and triggers `Vindi::Customer.update` to keep records in sync.
 
+##### 3. Resilient Transactional Outbox Sync (Optional)
+To prevent network requests inside your main database transactions and ensure ultimate reliability:
+
+1. Generate outbox migration:
+   ```bash
+   bundle exec rails generate vindi:outbox
+   bundle exec rails db:migrate
+   ```
+2. Enable it in your config initializer:
+   ```ruby
+   Vindi.configure do |config|
+     config.use_outbox = true
+   end
+   ```
+3. When a record is created or updated, the synchronization is written to `vindi_pending_syncs` in-transaction, and `Vindi::ProcessPendingSyncsJob` is enqueued after the commit to process it in background.
+
 #### Rake Tasks
 The gem includes task commands for verification:
 

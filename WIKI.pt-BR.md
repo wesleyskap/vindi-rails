@@ -338,6 +338,22 @@ Quando um registro do modelo for salvo, os seguintes gatilhos serão acionados:
 - **Ao Criar**: Chama `Vindi::Customer.create` e salva o `vindi_customer_id` retornado diretamente no seu banco local.
 - **Ao Atualizar**: Verifica se `name` ou `email` mudaram e chama `Vindi::Customer.update` para sincronizar os dados na Vindi.
 
+##### 3. Fila Outbox Transacional Resiliente (Opcional)
+Para evitar requisições HTTP síncronas de rede dentro das suas transações de banco de dados locais e garantir maior resiliência:
+
+1. Gere a migração do outbox:
+   ```bash
+   bundle exec rails generate vindi:outbox
+   bundle exec rails db:migrate
+   ```
+2. Habilite-o no initializer de configuração:
+   ```ruby
+   Vindi.configure do |config|
+     config.use_outbox = true
+   end
+   ```
+3. Ao cadastrar/atualizar um registro local, as pendências são salvas na tabela `vindi_pending_syncs` na mesma transação local, e o job `Vindi::ProcessPendingSyncsJob` é disparado assincronamente após o commit para fazer a sincronização final.
+
 #### Tarefas Rake (Rake Tasks)
 A gem disponibiliza ferramentas para auditoria e teste de integração local:
 
