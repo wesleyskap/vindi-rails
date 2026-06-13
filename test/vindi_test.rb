@@ -275,6 +275,28 @@ class VindiTest < Minitest::Test
     assert defined?(Vindi::Generators::InstallGenerator)
   end
 
+  def test_create_supports_idempotency_key
+    setup_test_config
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/customers")
+      .with(headers: { "Idempotency-Key" => "unique-key-123" })
+      .to_return(status: 200, body: '{"customer":{"id":123,"name":"Test"}}')
+
+    customer = Vindi::Customer.create({ name: "Test" }, idempotency_key: "unique-key-123")
+    assert_equal 123, customer.id
+  end
+
+  def test_update_supports_idempotency_key
+    setup_test_config
+
+    stub_request(:put, "https://sandbox-gp.vindi.com.br/api/v1/customers/123")
+      .with(headers: { "Idempotency-Key" => "unique-key-456" })
+      .to_return(status: 200, body: '{"customer":{"id":123,"name":"New Name"}}')
+
+    customer = Vindi::Customer.update(123, { name: "New Name" }, idempotency_key: "unique-key-456")
+    assert_equal "New Name", customer.name
+  end
+
   private
 
   def setup_test_config
