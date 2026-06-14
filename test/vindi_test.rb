@@ -297,6 +297,85 @@ class VindiTest < Minitest::Test
     assert_equal "New Name", customer.name
   end
 
+  class MockCacheStore
+    attr_reader :store
+
+    def initialize
+      @store = {}
+    end
+
+    def fetch(key, options = {})
+      @store[key] ||= yield
+    end
+  end
+
+  def test_caching_disabled_by_default
+    setup_test_config
+    # cache_store is nil by default
+    assert_nil Vindi.configuration.cache_store
+
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(status: 200, body: '{"plans":[{"id":1,"name":"Plan 1"}]}')
+
+    plans1 = Vindi::Plan.list
+    plans2 = Vindi::Plan.list
+    assert_equal 1, plans1.first.id
+    assert_equal 1, plans2.first.id
+    # Since mock/WebMock stub executes each time, it verifies it was called twice
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 2
+  end
+
+  def test_caching_enabled_for_configured_resources
+    setup_test_config
+    mock_cache = MockCacheStore.new
+    Vindi.configuration.cache_store = mock_cache
+
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(status: 200, body: '{"plans":[{"id":1,"name":"Plan 1"}]}')
+
+    plans1 = Vindi::Plan.list
+    plans2 = Vindi::Plan.list
+
+    assert_equal 1, plans1.first.id
+    assert_equal 1, plans2.first.id
+    # The request should only be executed once because of the cache hit
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 1
+    refute_nil mock_cache.store.keys.first
+  end
+
+  def test_caching_bypassed_for_non_get_requests
+    setup_test_config
+    mock_cache = MockCacheStore.new
+    Vindi.configuration.cache_store = mock_cache
+
+    stub_request(:post, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(status: 200, body: '{"plan":{"id":2,"name":"New Plan"}}')
+
+    plan1 = Vindi::Plan.create(name: "New Plan")
+    assert_equal 2, plan1.id
+    assert_empty mock_cache.store
+    assert_requested :post, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 1
+  end
+
+  def test_caching_bypassed_for_non_configured_resources
+    setup_test_config
+    mock_cache = MockCacheStore.new
+    Vindi.configuration.cache_store = mock_cache
+    # Ensure customers is NOT in cached_resources
+    refute_includes Vindi.configuration.cached_resources, :customers
+
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/customers")
+      .to_return(status: 200, body: '{"customers":[{"id":123,"name":"Test"}]}')
+
+    res1 = Vindi::Customer.list
+    res2 = Vindi::Customer.list
+
+    assert_equal 123, res1.first.id
+    assert_equal 123, res2.first.id
+    assert_empty mock_cache.store
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/customers", times: 2
+  end
+
   private
 
   def setup_test_config

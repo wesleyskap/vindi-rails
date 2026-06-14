@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "base64"
+require "digest"
 
 module Vindi
   class Client
@@ -13,12 +14,34 @@ module Vindi
         payload = build_payload(method, params)
         req_headers = build_headers(api_key, headers)
 
-        execute_request(method, url, payload, req_headers)
+        if cacheable?(method, path)
+          fetch_from_cache(path, params) { execute_request(method, url, payload, req_headers) }
+        else
+          execute_request(method, url, payload, req_headers)
+        end
       rescue RestClient::Exception => e
         handle_rest_client_error(e)
       end
 
       private
+
+      def cacheable?(method, path)
+        return false unless method.to_sym.downcase == :get
+        return false unless Vindi.configuration.cache_store
+
+        resource = path.split("/").first&.to_sym
+        Vindi.configuration.cached_resources&.include?(resource)
+      end
+
+      def fetch_from_cache(path, params, &block)
+        key = cache_key(path, params)
+        Vindi.configuration.cache_store.fetch(key, expires_in: Vindi.configuration.cache_ttl, &block)
+      end
+
+      def cache_key(path, params)
+        hash = Digest::MD5.hexdigest(params.to_json)
+        "vindi:cache:#{path}:#{hash}"
+      end
 
       def build_url(path)
         "#{Vindi.configuration.api_url}/#{path.sub(%r{^/}, '')}"
