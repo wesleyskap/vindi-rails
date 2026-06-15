@@ -376,6 +376,85 @@ class VindiTest < Minitest::Test
     assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/customers", times: 2
   end
 
+  def test_retry_on_rate_limit_429
+    setup_test_config
+    Vindi.configuration.max_retries = 2
+    Vindi.configuration.retry_base_delay = 0.001
+
+    # First request: 429 Rate Limit, Second request: 200 Success
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return({ status: 429, body: "Rate Limit Exceeded" }, { status: 200, body: '{"plans":[{"id":1}]}' })
+
+    res = Vindi::Plan.list
+    assert_equal 1, res.first.id
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 2
+  end
+
+  def test_retry_with_retry_after_header
+    setup_test_config
+    Vindi.configuration.max_retries = 1
+    # We will verify that it extracts the retry-after header delay
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(
+        { status: 429, headers: { "Retry-After" => "0.002" }, body: "Rate Limit Exceeded" },
+        { status: 200, body: '{"plans":[{"id":2}]}' }
+      )
+
+    res = Vindi::Plan.list
+    assert_equal 2, res.first.id
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 2
+  end
+
+  def test_retry_on_timeout
+    setup_test_config
+    Vindi.configuration.max_retries = 1
+    Vindi.configuration.retry_base_delay = 0.001
+
+    # First request: Timeout, Second request: 200 Success
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_raise(RestClient::Exceptions::ReadTimeout.new("timeout"))
+      .then
+      .to_return(status: 200, body: '{"plans":[{"id":3}]}')
+
+    res = Vindi::Plan.list
+    assert_equal 3, res.first.id
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 2
+  end
+
+  def test_exceeding_max_retries_raises_error
+    setup_test_config
+    Vindi.configuration.max_retries = 2
+    Vindi.configuration.retry_base_delay = 0.001
+
+    # Keep returning 429 Rate Limit
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(status: 429, body: "Rate Limit Exceeded")
+
+    assert_raises Vindi::RateLimitError do
+      Vindi::Plan.list
+    end
+
+    # 1 initial request + 2 retries = 3 requests total
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 3
+  end
+
+  def test_no_retry_on_non_retryable_errors
+    setup_test_config
+    Vindi.configuration.max_retries = 2
+    Vindi.configuration.retry_base_delay = 0.001
+
+    # 401 Unauthorized
+    stub_request(:get, "https://sandbox-gp.vindi.com.br/api/v1/plans")
+      .to_return(status: 401, body: "Unauthorized")
+
+    assert_raises Vindi::UnauthorizedError do
+      Vindi::Plan.list
+    end
+
+    # Should only execute once (no retries)
+    assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 1
+  end
+
   private
 
   def setup_test_config

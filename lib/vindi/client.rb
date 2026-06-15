@@ -15,15 +15,46 @@ module Vindi
         req_headers = build_headers(api_key, headers)
 
         if cacheable?(method, path)
-          fetch_from_cache(path, params) { execute_request(method, url, payload, req_headers) }
+          fetch_from_cache(path, params) { execute_request_with_retry(method, url, payload, req_headers) }
         else
-          execute_request(method, url, payload, req_headers)
+          execute_request_with_retry(method, url, payload, req_headers)
         end
       rescue RestClient::Exception => e
         handle_rest_client_error(e)
       end
 
       private
+
+      def execute_request_with_retry(method, url, payload, headers)
+        retries = 0
+        max_retries = Vindi.configuration.max_retries || 3
+        begin
+          execute_request(method, url, payload, headers)
+        rescue RestClient::Exception => e
+          if retryable?(e, retries, max_retries)
+            retries += 1
+            sleep(calculate_delay(e, retries))
+            retry
+          end
+          raise e
+        end
+      end
+
+      def retryable?(error, retries, max_retries)
+        return false if retries >= max_retries
+        return true if error.response&.code == 429
+        error.is_a?(RestClient::Exceptions::Timeout) || error.is_a?(RestClient::ServerBrokeConnection)
+      end
+
+      def calculate_delay(error, retries)
+        if error.response && error.response.headers
+          retry_after = error.response.headers[:retry_after] || error.response.headers["retry-after"]
+          return retry_after.to_f if retry_after && retry_after.to_f > 0
+        end
+        factor = Vindi.configuration.retry_backoff_factor || 2
+        base = Vindi.configuration.retry_base_delay || 1.0
+        base * (factor ** (retries - 1))
+      end
 
       def cacheable?(method, path)
         return false unless method.to_sym.downcase == :get
