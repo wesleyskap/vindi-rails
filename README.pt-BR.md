@@ -33,6 +33,16 @@ Vindi.configure do |config|
   config.api_key = 'sua_chave_privada_da_api'
   # Opcional: Define a URL base (padrão é o Sandbox da Vindi)
   # config.api_url = 'https://gp.vindi.com.br/api/v1'
+
+  # Opcional: Configurar cache (ex: ActiveSupport::Cache::MemoryStore.new ou Rails.cache)
+  # config.cache_store = Rails.cache
+  # config.cache_ttl = 300 # Tempo de expiração em segundos (padrão é 300)
+  # config.cached_resources = [:plans, :products, :discounts, :payment_methods] # Recursos sob cache
+
+  # Opcional: Configurar limite de retentativas (rate limit / timeouts)
+  # config.max_retries = 3 # Máximo de retentativas em falhas de rede ou status 429 (padrão é 3)
+  # config.retry_backoff_factor = 2 # Multiplicador de recuo de tempo (padrão é 2)
+  # config.retry_base_delay = 1.0 # Tempo inicial de espera em segundos (padrão é 1.0)
 end
 ```
 

@@ -3,6 +3,11 @@
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ---
+## [0.4.0] - 15-06-2026
+
+### Adicionado
+- **Rate Limit & Auto-Retry**: Suporte automatizado a retentativas com recuo exponencial (exponential backoff) para erros HTTP 429 (Limite de Requisições) e timeouts temporários de conexão. Respeita o cabeçalho `Retry-After` da resposta se fornecido.
+- **Cache**: Mecanismo de cache integrado e configurável para recursos estáticos/pouco mutáveis (Planos, Produtos, Descontos, Meios de Pagamento) para mitigar chamadas de rede desnecessárias.
 
 ## [0.3.0] - 13-06-2026
 

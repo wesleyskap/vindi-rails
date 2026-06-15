@@ -477,3 +477,76 @@ def charge
   )
 end
 ```
+
+---
+
+## 5. Cache
+
+Para reduzir a sobrecarga de rede e o consumo de requisições à API, o SDK suporta um mecanismo opcional e configurável de cache para chamadas GET (`list` e `find`) em recursos estáticos ou pouco mutáveis (como Planos, Produtos, Descontos e Meios de Pagamento).
+
+### Configuração de Cache
+
+Configure o gerenciador e o tempo de expiração do cache no arquivo de inicialização `vindi.rb`:
+
+```ruby
+Vindi.configure do |config|
+  config.api_key = 'sua_chave_privada_da_api'
+
+  # Define um cache store que responda a #fetch(key, options)
+  # Em aplicações Rails:
+  config.cache_store = Rails.cache
+  
+  # Ou utilize uma instância isolada:
+  # config.cache_store = ActiveSupport::Cache::MemoryStore.new
+
+  # Tempo de expiração do cache (em segundos)
+  config.cache_ttl = 300 # (Padrão: 5 minutos)
+
+  # Lista personalizada de recursos sob cache (padrão inclui plans, products, discounts e payment_methods)
+  # config.cached_resources = [:plans, :products, :discounts, :payment_methods]
+end
+```
+
+### Invalidação de Cache
+
+Como o mecanismo utiliza o cache store padrão configurado, você pode remover ou invalidar chaves manualmente limpando chaves específicas do seu cache store. As chaves de cache seguem a estrutura:
+
+`vindi:cache:<nome_do_endpoint>:<hash_md5_dos_parametros>`
+
+Por exemplo:
+`vindi:cache:plans:81b0730...`
+
+---
+
+## 6. Limite de Requisições & Retentativas Automáticas (Rate Limiting & Auto-Retry)
+
+Para garantir alta disponibilidade e evitar falhas temporárias em chamadas de rede, o SDK possui suporte nativo a retentativas automáticas quando ocorrem erros HTTP 429 (Limite de Requisições Excedido) ou timeouts temporários de conexão.
+
+### Como Funciona
+Ao falhar em uma requisição, o SDK avalia se a falha é passível de retentativa:
+1. Erros HTTP 429 (Rate Limit) são elegíveis para nova tentativa.
+2. Timeouts de conexão ou de leitura de dados (`RestClient::Exceptions::Timeout`, `RestClient::ServerBrokeConnection`) são elegíveis.
+3. Outros erros HTTP (como 401, 403, 404, 422) **não** são retentados e a exceção correspondente é lançada imediatamente.
+
+### Cálculo de Tempo de Espera (Delay)
+O tempo entre retentativas é determinado por:
+- **Cabeçalho `Retry-After`**: Se a API da Vindi retornar o cabeçalho `Retry-After`, o SDK suspende a execução pelo tempo estipulado pela API.
+- **Recuo Exponencial (Exponential Backoff)**: Se o cabeçalho não estiver presente, o cálculo utiliza a fórmula `retry_base_delay * (retry_backoff_factor ** (retry_number - 1))`.
+
+### Opções de Configuração
+Você pode ajustar esses parâmetros no initializer do seu projeto:
+
+```ruby
+Vindi.configure do |config|
+  # Número máximo de retentativas antes de lançar a exceção final (Padrão: 3)
+  config.max_retries = 3
+
+  # Fator multiplicador de tempo para o recuo exponencial (Padrão: 2)
+  config.retry_backoff_factor = 2
+
+  # Tempo base de espera inicial em segundos (Padrão: 1.0)
+  config.retry_base_delay = 1.0
+end
+```
+
+

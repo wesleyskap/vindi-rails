@@ -477,3 +477,76 @@ def charge
   )
 end
 ```
+
+---
+
+## 5. Caching
+
+To reduce network overhead and API requests, the SDK supports optional, configurable caching of GET requests (`list` and `find`) for static/rarely-changing resources (e.g., Plans, Products, Discounts, and Payment Methods).
+
+### Caching Configuration
+
+Configure the cache store and duration inside the `vindi.rb` initializer:
+
+```ruby
+Vindi.configure do |config|
+  config.api_key = 'your_private_api_key'
+
+  # Configure a cache store that responds to #fetch(key, options)
+  # For Rails applications:
+  config.cache_store = Rails.cache
+  
+  # Or a standalone memory store:
+  # config.cache_store = ActiveSupport::Cache::MemoryStore.new
+
+  # Expiration time for cached responses (in seconds)
+  config.cache_ttl = 300 # (Default: 5 minutes)
+
+  # Custom list of endpoints to cache (defaults to plans, products, discounts, and payment methods)
+  # config.cached_resources = [:plans, :products, :discounts, :payment_methods]
+end
+```
+
+### Cache Invalidation
+
+Since caching uses standard cache stores, you can manually clear or invalidate cached queries by deleting the keys from your cache store. Cache keys follow the format:
+
+`vindi:cache:<endpoint_path>:<md5_hash_of_params>`
+
+For example:
+`vindi:cache:plans:81b0730...`
+
+---
+
+## 6. Rate Limiting & Auto-Retry
+
+To ensure high availability and prevent transient request failures, the SDK comes with built-in support for auto-retries when the application encounters HTTP 429 (Rate Limit Exceeded) errors or network timeouts.
+
+### How it Works
+When a request fails, the SDK determines if it is retryable:
+1. HTTP 429 (Rate Limit) responses are retried.
+2. Network timeouts or broken connections (`RestClient::Exceptions::Timeout`, `RestClient::ServerBrokeConnection`) are retried.
+3. Other HTTP errors (e.g. 401, 403, 404, 422) are raised immediately and not retried.
+
+### Delay Calculation
+The delay between retries is calculated using:
+- **`Retry-After` Header**: If the Vindi API responds with a `Retry-After` header, the SDK respects it and pauses for that specific duration.
+- **Exponential Backoff**: If no header is provided, the SDK uses an exponential backoff algorithm based on `retry_base_delay * (retry_backoff_factor ** (retry_number - 1))`.
+
+### Configuration Options
+You can tune the retry parameters in your initializer:
+
+```ruby
+Vindi.configure do |config|
+  # Maximum number of retries before giving up and raising the exception (Default: 3)
+  config.max_retries = 3
+
+  # Multiplication base factor for exponential delays (Default: 2)
+  config.retry_backoff_factor = 2
+
+  # Initial wait time in seconds for the first retry delay (Default: 1.0)
+  config.retry_base_delay = 1.0
+end
+```
+
+

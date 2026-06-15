@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## [0.4.0] - 2026-06-15
+
+### Added
+- **Rate Limit & Auto-Retry**: Automated retry handling with exponential backoff for HTTP 429 (Rate Limit) responses and temporary connection timeouts. Respects the `Retry-After` header when provided.
+- **Caching**: Built-in, configurable caching mechanism for static/rarely-changing resources (Plans, Products, Discounts, Payment Methods) to minimize redundant network requests.
 
 ## [0.3.0] - 2026-06-13
 
