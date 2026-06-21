@@ -46,6 +46,20 @@ Vindi.configure do |config|
 end
 ```
 
+### Dynamic Configuration (Multi-Merchant / Multi-Tenancy)
+
+If your application needs to handle multiple Vindi accounts or switch API credentials dynamically (e.g., in a multi-tenant SaaS application), you can use `Vindi.with_config` to run a block with temporary credentials. This operation is thread-safe:
+
+```ruby
+# Switch key and API url dynamically within a block
+Vindi.with_config(api_key: 'another_merchant_api_key', api_url: 'https://gp.vindi.com.br/api/v1') do
+  # Any API call here will use the overridden configuration
+  customers = Vindi::Customer.list
+end
+
+# The original global configuration is automatically restored outside the block
+```
+
 ## Usage
 
 Resources are mapped directly under the `Vindi` namespace.

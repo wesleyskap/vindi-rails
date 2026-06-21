@@ -3,6 +3,12 @@
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ---
+## [0.5.0] - 21-06-2026
+
+### Adicionado
+- **Multi-Merchant Dinâmico (Multi-Tenancy)**: Suporte a configurações dinâmicas e isoladas por thread (thread-safe) usando `Vindi.with_config` para executar blocos de ações da API com credenciais ou configurações diferentes temporariamente, sem interferir no estado global ou em outras threads concorrentes.
+
+---
 ## [0.4.0] - 15-06-2026
 
 ### Adicionado

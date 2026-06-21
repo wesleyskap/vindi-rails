@@ -549,4 +549,30 @@ Vindi.configure do |config|
 end
 ```
 
+---
+
+## 7. Configuração Dinâmica (Multi-Merchant / Multi-Tenancy)
+
+Ao construir aplicações SaaS multi-tenant, você pode precisar fazer chamadas à API da Vindi em nome de contas de merchants diferentes, cada uma com sua própria chave de API e parâmetros de configuração.
+
+Para alterar as configurações em tempo de execução de forma segura contra concorrência (thread-safe), use o método `Vindi.with_config`.
+
+### Exemplo de Uso
+
+```ruby
+# A configuração global é definida no inicializador (ex: config/initializers/vindi.rb)
+# Vindi.configuration.api_key # => "chave_global"
+
+# Altera temporariamente as credenciais dentro de um bloco
+Vindi.with_config(api_key: "chave_do_merchant_b", api_url: "https://gp.vindi.com.br/api/v1") do
+  # Chamadas de API dentro deste bloco usam a chave e URL do Merchant B
+  @plans = Vindi::Plan.list
+end
+
+# Após a saída do bloco, a configuração global padrão é restaurada automaticamente
+# Vindi.configuration.api_key # => "chave_global"
+```
+
+O override de configuração aceita tanto um hash de chaves (`:api_key`, `:api_url`, `:cache_store`, etc.) quanto uma instância completa da classe `Vindi::Configuration`.
+
 
