@@ -49,11 +49,35 @@ module Vindi
     attr_writer :configuration
 
     def configuration
-      @configuration ||= Configuration.new
+      Thread.current[:vindi_config] || @configuration ||= Configuration.new
     end
 
     def configure
       yield(configuration)
+    end
+
+    def with_config(config_override)
+      original_config = Thread.current[:vindi_config]
+      Thread.current[:vindi_config] = build_override_config(config_override)
+      yield
+    ensure
+      Thread.current[:vindi_config] = original_config
+    end
+
+    private
+
+    def build_override_config(override)
+      return override if override.is_a?(Configuration)
+
+      current = Thread.current[:vindi_config] || @configuration || Configuration.new
+      cloned = current.clone
+
+      override.each do |key, value|
+        setter = "#{key}="
+        cloned.public_send(setter, value) if cloned.respond_to?(setter)
+      end
+
+      cloned
     end
   end
 end

@@ -455,6 +455,57 @@ class VindiTest < Minitest::Test
     assert_requested :get, "https://sandbox-gp.vindi.com.br/api/v1/plans", times: 1
   end
 
+  def test_with_config_overrides_api_key_temporarily
+    setup_test_config
+    assert_equal "abc12345", Vindi.configuration.api_key
+
+    Vindi.with_config(api_key: "new_key_123") do
+      assert_equal "new_key_123", Vindi.configuration.api_key
+      assert_equal "https://sandbox-gp.vindi.com.br/api/v1", Vindi.configuration.api_url
+    end
+
+    assert_equal "abc12345", Vindi.configuration.api_key
+  end
+
+  def test_with_config_restores_original_configuration_even_on_error
+    setup_test_config
+    assert_equal "abc12345", Vindi.configuration.api_key
+
+    begin
+      Vindi.with_config(api_key: "error_key") do
+        assert_equal "error_key", Vindi.configuration.api_key
+        raise StandardError, "Oops"
+      end
+    rescue StandardError
+      # Expected error
+    end
+
+    assert_equal "abc12345", Vindi.configuration.api_key
+  end
+
+  def test_with_config_is_thread_safe
+    setup_test_config
+    assert_equal "abc12345", Vindi.configuration.api_key
+
+    threads = []
+    threads << Thread.new do
+      Vindi.with_config(api_key: "thread_1_key") do
+        sleep 0.01
+        assert_equal "thread_1_key", Vindi.configuration.api_key
+      end
+    end
+
+    threads << Thread.new do
+      Vindi.with_config(api_key: "thread_2_key") do
+        sleep 0.01
+        assert_equal "thread_2_key", Vindi.configuration.api_key
+      end
+    end
+
+    threads.each(&:join)
+    assert_equal "abc12345", Vindi.configuration.api_key
+  end
+
   private
 
   def setup_test_config
